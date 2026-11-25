@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:veridian/services/business_service.dart';
-import 'package:veridian/theme.dart';
 import 'package:veridian/widgets/action_button.dart';
 import 'package:veridian/providers/localization_provider.dart'; // Добавлен
 
@@ -160,7 +159,7 @@ class _BusinessCheckScreenState extends State<BusinessCheckScreen> {
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.onSurface)),
-              Text(bin.substring(0, 4) + "...",
+              Text("${bin.substring(0, 4)}...",
                   style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
             ],
           ),

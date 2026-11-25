@@ -2,6 +2,7 @@ import 'package:veridian/services/ui_strings.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/banking_panel.dart';
+import '../widgets/new_badge.dart';
 import 'bill_payment_screen.dart';
 import 'auth/demo_session.dart';
 import 'business_check_screen.dart';
@@ -13,8 +14,9 @@ import 'map_screen.dart';
 import 'mobile_payment_screen.dart';
 import 'shopping_navigator_screen.dart';
 import 'assau_screen.dart';
+import 'assistant/assistant_screen.dart';
 import 'support_screen.dart';
-import 'transactions_screen.dart';
+import 'messages_screen.dart';
 import 'transfer_screen.dart';
 
 typedef _ServiceLink = ({IconData icon, String title, Widget? screen});
@@ -51,6 +53,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
           screen: AssauTenderHelperScreen()
         ),
         (icon: Icons.work_rounded, title: 'Карьера', screen: CareerScreen()),
+        (
+          icon: Icons.insights_rounded,
+          title: 'Финансовый аналитик',
+          screen: AssistantScreen()
+        ),
       ]
     ),
     (
@@ -93,9 +100,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
           screen: TransferScreen()
         ),
         (
-          icon: Icons.history_rounded,
-          title: 'История',
-          screen: TransactionsScreen()
+          icon: Icons.mail_outline_rounded,
+          title: 'Сообщения',
+          screen: MessagesScreen()
         ),
       ]
     ),
@@ -271,7 +278,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     } else if (isBankingDemo(context) &&
         screen is! TransferScreen &&
         screen is! BillPaymentScreen &&
-        screen is! TransactionsScreen &&
+        screen is! MessagesScreen &&
         screen is! CardManagementScreen &&
         screen is! FaqScreen) {
       bankingNotice(
@@ -293,10 +300,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Widget _serviceTile(
       BuildContext context, _ServiceLink entry, BankingTone tone) {
     final colors = Theme.of(context).colorScheme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => _openService(context, entry),
-      child: Padding(
+    final content = Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
         child: Column(
           children: [
@@ -315,7 +319,13 @@ class _ServicesScreenState extends State<ServicesScreen> {
             ),
           ],
         ),
-      ),
+      );
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => _openService(context, entry),
+      child: entry.screen is AssistantScreen
+          ? NewBadge(inset: EdgeInsets.zero, child: content)
+          : content,
     );
   }
 }

@@ -13,11 +13,11 @@ class TransferService extends ChangeNotifier {
 
     // Если начинается с 8, меняем на 7
     if (digits.startsWith('8')) {
-      digits = '7' + digits.substring(1);
+      digits = '7${digits.substring(1)}';
     }
     // Если 10 цифр, добавляем 7
     if (digits.length == 10) {
-      digits = '7' + digits;
+      digits = '7$digits';
     }
 
     // Если начинается с 7, оставляем как есть
@@ -28,7 +28,8 @@ class TransferService extends ChangeNotifier {
     try {
       final response = await ApiClient.get('/recipients');
       if (response is List) {
-        _recipients = response.map((json) => TransferRecipient.fromJson(json)).toList();
+        _recipients =
+            response.map((json) => TransferRecipient.fromJson(json)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -39,7 +40,8 @@ class TransferService extends ChangeNotifier {
   // Поиск пользователя (ИСПРАВЛЕНО)
   Future<Map<String, String>?> searchUserByPhone(String phone) async {
     try {
-      final cleanPhone = _formatPhoneForServer(phone); // Чистим номер перед отправкой
+      final cleanPhone =
+          _formatPhoneForServer(phone); // Чистим номер перед отправкой
 
       final response = await ApiClient.post('/users/search', body: {
         'phone': cleanPhone,
@@ -104,7 +106,8 @@ class TransferService extends ChangeNotifier {
 
   Future<bool> addRecipient(TransferRecipient recipient) async {
     try {
-      final response = await ApiClient.post('/recipients', body: recipient.toJson());
+      final response =
+          await ApiClient.post('/recipients', body: recipient.toJson());
       final newRecipient = TransferRecipient.fromJson(response);
       _recipients.add(newRecipient);
       notifyListeners();

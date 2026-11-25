@@ -16,12 +16,12 @@ class UserService extends ChangeNotifier {
 
     // Если начинается с 8, меняем на 7
     if (digits.startsWith('8')) {
-      digits = '7' + digits.substring(1);
+      digits = '7${digits.substring(1)}';
     }
     // Если начинается с 7, оставляем
     // Если вдруг пришло без кода (10 цифр), добавляем 7
     if (digits.length == 10) {
-      digits = '7' + digits;
+      digits = '7$digits';
     }
 
     return digits; // Возвращает 77712615232

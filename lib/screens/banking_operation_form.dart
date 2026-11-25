@@ -169,8 +169,9 @@ class _BankingOperationFormState extends State<BankingOperationForm> {
               final text = (value ?? '').replaceAll(RegExp(r'\s+'), '');
               if (_international &&
                   !RegExp(r'^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$')
-                      .hasMatch(text.toUpperCase()))
+                      .hasMatch(text.toUpperCase())) {
                 return uiText('Проверьте IBAN');
+              }
               return text.isEmpty ? uiText('Введите реквизиты') : null;
             },
           ),

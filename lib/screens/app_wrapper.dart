@@ -10,7 +10,7 @@ import 'auth/login_screen.dart';
 import 'package:veridian/screens/home_dashboard.dart';
 import 'package:veridian/screens/transfer_screen.dart';
 import 'package:veridian/screens/bill_payment_screen.dart';
-import 'package:veridian/screens/transactions_screen.dart';
+import 'package:veridian/screens/messages_screen.dart';
 import 'package:veridian/screens/services_screen.dart';
 
 class AppWrapper extends StatefulWidget {
@@ -37,7 +37,7 @@ class _AppWrapperState extends State<AppWrapper> {
             const HomeDashboard(),
             TransferScreen(onHome: () => setState(() => _selectedIndex = 0)),
             const BillPaymentScreen(),
-            const TransactionsScreen(),
+            const MessagesScreen(),
             const ServicesScreen(),
           ].indexed)
             AnimatedOpacity(
@@ -78,8 +78,8 @@ class _AppWrapperState extends State<AppWrapper> {
                   context, Icons.swap_horiz_outlined, uiText('Переводы'), 1),
               _buildNavItem(
                   context, Icons.payments_outlined, uiText('Платежи'), 2),
-              _buildNavItem(context, Icons.receipt_long_outlined,
-                  language.translate("history"), 3),
+              _buildNavItem(context, Icons.mail_outline_rounded,
+                  uiText('Сообщения'), 3),
               _buildNavItem(
                   context, Icons.grid_view_outlined, uiText('Сервисы'), 4),
             ],

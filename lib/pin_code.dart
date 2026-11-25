@@ -68,7 +68,9 @@ class _PinCodeState extends State<PinCode> {
     final user = context.read<UserService>().currentUser;
     if (user == null ||
         !AccessCode.enabled(user.id) ||
-        AccessCode.read(user.id) != code) return uiText('Неверный код доступа');
+        AccessCode.read(user.id) != code) {
+      return uiText('Неверный код доступа');
+    }
     _unlock();
     return null;
   }

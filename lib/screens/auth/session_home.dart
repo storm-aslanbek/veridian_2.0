@@ -5,6 +5,7 @@ import '../../services/account_service.dart';
 import '../../services/bill_service.dart';
 import '../../services/card_service.dart';
 import '../../services/loan_service.dart';
+import '../../services/payment_service.dart';
 import '../../services/transaction_service.dart';
 import '../../services/transfer_service.dart';
 import '../../services/user_service.dart';
@@ -39,6 +40,7 @@ class _SessionHomeState extends State<SessionHome> {
       context.read<BillService>().loadBills(user.id),
       context.read<LoanService>().loadLoans(user.id),
       context.read<TransferService>().loadRecipients(user.id),
+      context.read<PaymentService>().loadPayments(),
     ]);
     if (mounted && context.read<UserService>().currentUser?.id == user.id) {
       setState(() => _ready = true);
@@ -47,8 +49,9 @@ class _SessionHomeState extends State<SessionHome> {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.watch<UserService>().isAuthenticated)
+    if (!context.watch<UserService>().isAuthenticated) {
       return const LoginScreen();
+    }
     if (_ready) return const AppWrapper();
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }

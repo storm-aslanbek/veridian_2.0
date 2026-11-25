@@ -1,8 +1,16 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:veridian/services/local_storage_service.dart';
+
+class ApiException implements Exception {
+  const ApiException(this.statusCode, this.body);
+
+  final int statusCode;
+  final String body;
+
+  @override
+  String toString() => 'Exception: API Error: $statusCode $body';
+}
 
 class ApiClient {
   static String get baseUrl {
@@ -58,9 +66,9 @@ class ApiClient {
   static dynamic _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return null;
-    return jsonDecode(utf8.decode(response.bodyBytes));
+      return jsonDecode(utf8.decode(response.bodyBytes));
     } else {
-    throw Exception('API Error: ${response.statusCode} ${response.body}');
+      throw ApiException(response.statusCode, response.body);
     }
   }
 }

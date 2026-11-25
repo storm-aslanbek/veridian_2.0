@@ -5,40 +5,27 @@ import json
 import urllib.parse
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
-from app.config import openai_client, RAPIDAPI_KEY
+from app.config import gemini_client, RAPIDAPI_KEY
 from app.security import get_current_user
 from app.models.user import UserResponse
 from app.models.external import SupportChatRequest, SearchResult, BusinessCheckResult, JobOpportunity
+from app.services.support_service import generate_support_reply
 
 router = APIRouter()
 
+SUPPORT_UNAVAILABLE_REPLY = "Service temporarily unavailable"
+
 
 @router.post("/support/chat")
-async def support_chat(req: SupportChatRequest):
-    if not openai_client:
-        raise HTTPException(status_code=500, detail="OpenAI client not initialized")
+async def support_chat(req: SupportChatRequest, current_user: UserResponse = Depends(get_current_user)):
+    if not gemini_client:
+        raise HTTPException(status_code=500, detail="Gemini client not initialized")
     try:
-        system_prompt = ""
-        if req.language == 'kk':
-            system_prompt = "Сіз Veridian банкінің пайдалы виртуалды көмекшісісіз. Жауаптарыңыз қысқа, нақты және қазақ тілінде болсын."
-        elif req.language == 'en':
-            system_prompt = "You are a helpful virtual assistant for Veridian Bank. Keep your answers concise and in English."
-        else:
-            system_prompt = "Ты — полезный виртуальный помощник банка Veridian. Отвечай кратко, по делу и на русском языке."
-
-        chat_completion = await openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": req.message}
-            ],
-            max_tokens=150,
-            temperature=0.7,
-        )
-        return {"reply": chat_completion.choices[0].message.content}
+        reply = await generate_support_reply(req.message, req.language)
+        return {"reply": reply or SUPPORT_UNAVAILABLE_REPLY}
     except Exception as e:
-        print(f"ERROR: OpenAI API failed: {e}")
-        return {"reply": "Service temporarily unavailable"}
+        print(f"ERROR: Gemini API failed: {e}")
+        return {"reply": SUPPORT_UNAVAILABLE_REPLY}
 
 
 @router.get("/shopping/search", response_model=List[SearchResult])

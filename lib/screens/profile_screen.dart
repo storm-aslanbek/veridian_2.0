@@ -47,8 +47,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           context, const PinCode(verifyOnly: true));
       if (!mounted || confirmed != true) return;
     }
-    if (!mounted || context.read<UserService>().currentUser?.id != userId)
+    if (!mounted || context.read<UserService>().currentUser?.id != userId) {
       return;
+    }
     final saved = await openBankingScreen<bool>(
         context, const SetPinScreen(changing: true));
     if (!mounted || saved != true) return;

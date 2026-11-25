@@ -11,8 +11,9 @@ class AccessCode {
   static String _enabledKey(String userId) => '$_enabledPrefix$userId';
 
   static bool get hasSavedSignIn {
-    if ((LocalStorageService.getString('auth_token') ?? '').isEmpty)
+    if ((LocalStorageService.getString('auth_token') ?? '').isEmpty) {
       return false;
+    }
     return LocalStorageService.instance.getKeys().any((key) =>
         key.startsWith(_enabledPrefix) &&
         enabled(key.substring(_enabledPrefix.length)));

@@ -108,12 +108,15 @@ class DemoAccounts extends AccountService {
         !delta.isFinite ||
         delta == 0 ||
         _data[index].balance + delta < 0 ||
-        (destinationId != null && (target < 0 || target == index || delta > 0)))
+        (destinationId != null &&
+            (target < 0 || target == index || delta > 0))) {
       return false;
+    }
     _data[index] = _data[index].copyWith(balance: _data[index].balance + delta);
-    if (target >= 0)
+    if (target >= 0) {
       _data[target] =
           _data[target].copyWith(balance: _data[target].balance - delta);
+    }
     final now = DateTime.now();
     context.read<TransactionService>().addTransaction(Transaction(
           id: const Uuid().v4(),

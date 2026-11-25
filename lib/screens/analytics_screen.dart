@@ -9,7 +9,8 @@ import '../services/local_storage_service.dart';
 import '../services/transaction_service.dart';
 import '../services/user_service.dart';
 import '../widgets/banking_panel.dart';
-import 'transactions_screen.dart';
+import '../widgets/banking_range.dart';
+import 'messages_screen.dart';
 
 const analyticsColors = [
   Color(0xFF00A87E),
@@ -57,7 +58,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final totals = <String, double>{};
     for (final item in operations) {
       if (item.type != (_income ? 'credit' : 'debit') ||
-          !matchesBankingRange(item, range)) continue;
+          !matchesBankingRange(item, range)) {
+        continue;
+      }
       totals.update(item.category, (value) => value + item.amount.abs(),
           ifAbsent: () => item.amount.abs());
     }
@@ -187,7 +190,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 ),
                 TextButton(
                   onPressed: () => openBankingScreen<void>(
-                      context, TransactionsScreen(initialRange: range)),
+                      context, const MessagesScreen()),
                   child: Text(uiText('Смотреть операции')),
                 ),
               ],

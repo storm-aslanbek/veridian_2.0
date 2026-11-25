@@ -29,10 +29,12 @@ class _SetPinScreenState extends State<SetPinScreen> {
     }
     final userId = context.read<UserService>().currentUser?.id;
     if (userId == null) return uiText('Войдите в аккаунт повторно.');
-    if (!await AccessCode.save(userId, code))
+    if (!await AccessCode.save(userId, code)) {
       return uiText('Не удалось сохранить код. Повторите попытку.');
-    if (!mounted || context.read<UserService>().currentUser?.id != userId)
+    }
+    if (!mounted || context.read<UserService>().currentUser?.id != userId) {
       return null;
+    }
     if (widget.changing) {
       Navigator.pop(context, true);
     } else {

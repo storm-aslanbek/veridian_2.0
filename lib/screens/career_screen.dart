@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:veridian/services/career_service.dart';
 import 'package:veridian/models/job_opportunity.dart';
-import 'package:veridian/theme.dart';
 import 'package:veridian/providers/localization_provider.dart'; // Добавлен
 
 class CareerScreen extends StatefulWidget {
@@ -153,10 +152,7 @@ class _JobCard extends StatelessWidget {
   final LocalizationProvider localization;
 
   const _JobCard(
-      {super.key,
-      required this.job,
-      required this.onApply,
-      required this.localization});
+      {required this.job, required this.onApply, required this.localization});
 
   @override
   Widget build(BuildContext context) {

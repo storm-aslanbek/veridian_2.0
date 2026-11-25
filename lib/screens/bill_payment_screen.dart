@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/bill.dart';
+import '../models/payment.dart';
+import 'brand_list_screen.dart';
 import '../services/account_service.dart';
 import '../services/bill_service.dart';
 import '../services/user_service.dart';
@@ -176,40 +178,40 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
 
   Widget _paymentCategories() {
     final entries = [
-      ('Мобильная связь', Icons.phone_iphone_outlined),
-      ('Коммунальные услуги', Icons.receipt_long_outlined),
-      ('Интернет и ТВ', Icons.language_outlined),
-      ('Транспорт', Icons.directions_bus_outlined),
-      ('Развлечения', Icons.local_activity_outlined),
-      ('Налоги и штрафы', Icons.account_balance_outlined),
-      ('Страхование', Icons.verified_user_outlined),
-      ('Кэшбэк', Icons.savings_outlined),
+      ('entertainment', Icons.local_activity_outlined),
+      ('food', Icons.restaurant_outlined),
+      ('groceries', Icons.shopping_basket_outlined),
+      ('services', Icons.miscellaneous_services_outlined),
+      ('subscriptions', Icons.subscriptions_outlined),
     ]
-        .where((entry) => uiText(entry.$1).toLowerCase().contains(_query))
+        .where((entry) =>
+            brandCategoryLabel(entry.$1).toLowerCase().contains(_query))
         .toList();
-    if (entries.isEmpty)
+    if (entries.isEmpty) {
       return Padding(
         padding: EdgeInsets.all(12),
         child: Text(uiText('Категории не найдены')),
       );
-    return GridView.count(
-      crossAxisCount: MediaQuery.sizeOf(context).width < 370 ? 3 : 4,
-      childAspectRatio: 64 + MediaQuery.textScalerOf(context).scale(11) * 3,
-      crossAxisSpacing: 4,
-      mainAxisSpacing: 3,
+    }
+    return GridView(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: MediaQuery.sizeOf(context).width < 370 ? 3 : 4,
+        mainAxisExtent:
+            64 + MediaQuery.textScalerOf(context).scale(11) * 3,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 3,
+      ),
       shrinkWrap: true,
       primary: false,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        for (final (name, icon) in entries)
+        for (final (category, icon) in entries)
           InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () {
               HapticFeedback.selectionClick();
               openBankingScreen<void>(
-                  context,
-                  BankingOperationForm(
-                      operation: BankingOperation.payment, title: name));
+                  context, BrandListScreen(category: category));
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 5),
@@ -217,7 +219,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
                 BankingIcon(icon),
                 const SizedBox(height: 6),
                 Flexible(
-                    child: Text(uiText(name),
+                    child: Text(brandCategoryLabel(category),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
@@ -267,8 +269,9 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
     final service = context.read<BillService>();
     setState(() => _markingBillId = bill.id);
     final saved = await service.payBill(bill.id);
-    if (saved && users.currentUser?.id == bill.userId)
+    if (saved && users.currentUser?.id == bill.userId) {
       await accounts.loadAccounts(bill.userId);
+    }
     if (!mounted) return;
     setState(() => _markingBillId = null);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

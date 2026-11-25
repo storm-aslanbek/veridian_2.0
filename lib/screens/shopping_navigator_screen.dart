@@ -3,7 +3,6 @@ import 'package:veridian/services/ui_strings.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:veridian/services/shopping_service.dart';
-import 'package:veridian/theme.dart';
 import 'package:veridian/models/search_result.dart';
 import 'package:veridian/providers/localization_provider.dart'; // Добавлен импорт
 

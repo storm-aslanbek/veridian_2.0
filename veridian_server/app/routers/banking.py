@@ -1,10 +1,11 @@
 import uuid
-from datetime import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Body
+from app.clock import now_local
 from app.config import db
 from app.security import get_current_user
 from app.models.user import UserResponse
+from app.services import payment_service
 from app.models.banking import (
     BankAccount, Card, Transaction, Bill, Loan, TransferRecipient,
     TransferRequest, TransferByPhoneRequest
@@ -14,7 +15,7 @@ router = APIRouter()
 
 
 def now_iso():
-    return datetime.now().isoformat()
+    return now_local().isoformat()
 
 
 def generate_id():
@@ -78,6 +79,8 @@ async def transfer_to_card(req: TransferRequest, current_user: UserResponse = De
         "updatedAt": now
     }
     await db.transactions.insert_one(transaction)
+    await payment_service.record_message(
+        current_user.id, payment_service.TRANSFER_OUT, f"•••• {req.cardNumber[-4:]}", req.amount)
     return {"status": "success", "transactionId": transaction["id"]}
 
 
@@ -176,6 +179,13 @@ async def transfer_by_phone(req: TransferByPhoneRequest, current_user: UserRespo
         "updatedAt": now
     }
     await db.transactions.insert_one(transaction_in)
+
+    await payment_service.record_message(
+        current_user.id, payment_service.TRANSFER_OUT,
+        payment_service.short_name(recipient_user["firstName"], recipient_user["surname"]), req.amount)
+    await payment_service.record_message(
+        recipient_user["id"], payment_service.TRANSFER_IN,
+        payment_service.short_name(current_user.firstName, current_user.surname), req.amount)
 
     print("--- TRANSFER SUCCESS ---")
     return {"status": "success", "transactionId": transaction_out["id"]}

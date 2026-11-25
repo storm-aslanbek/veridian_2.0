@@ -184,11 +184,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       inputFormatters: [PhoneInputFormatter()],
                       validator: (v) {
                         final digits = v!.replaceAll(RegExp(r'\D'), '');
-                        if (digits.length < 11)
+                        if (digits.length < 11) {
                           return text(
                               'Введите полный номер',
                               'Нөмірді толық енгізіңіз',
                               'Enter your full phone number');
+                        }
                         return null;
                       },
                     ),

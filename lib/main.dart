@@ -5,11 +5,13 @@ import 'package:veridian/providers/localization_provider.dart';
 import 'package:veridian/providers/theme_provider.dart';
 import 'package:veridian/screens/auth/login_screen.dart';
 import 'package:veridian/services/account_service.dart';
+import 'package:veridian/services/assistant_service.dart';
 import 'package:veridian/services/bill_service.dart';
 import 'package:veridian/services/card_service.dart';
 import 'package:veridian/services/loan_service.dart';
 import 'package:veridian/services/local_storage_service.dart';
 import 'package:veridian/services/transaction_service.dart';
+import 'package:veridian/services/payment_service.dart';
 import 'package:veridian/services/transfer_service.dart';
 import 'package:veridian/services/user_service.dart';
 import 'package:veridian/theme.dart';
@@ -58,7 +60,13 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BillService()),
         ChangeNotifierProvider(create: (_) => LoanService()),
         ChangeNotifierProvider(create: (_) => TransferService()),
+        ChangeNotifierProvider(create: (_) => PaymentService()),
         ChangeNotifierProvider(create: (_) => SupportService()),
+        ChangeNotifierProxyProvider<UserService, AssistantService>(
+          create: (_) => AssistantService(),
+          update: (_, user, assistant) =>
+              assistant!..bindUser(user.currentUser?.id),
+        ),
         ChangeNotifierProvider(create: (_) => ShoppingService()),
         ChangeNotifierProvider(create: (_) => BusinessService()),
         ChangeNotifierProvider(create: (_) => CareerService()),

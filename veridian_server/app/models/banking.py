@@ -1,6 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel
 
+from app.models.assistant import Money
+
 class BankAccount(BaseModel):
     id: str
     userId: str
@@ -45,13 +47,13 @@ class Transaction(BaseModel):
 class TransferRequest(BaseModel):
     accountId: str
     cardNumber: str
-    amount: float
+    amount: Money
     description: Optional[str] = None
 
 class TransferByPhoneRequest(BaseModel):
     accountId: str
     phoneNumber: str
-    amount: float
+    amount: Money
     description: Optional[str] = None
 
 class Bill(BaseModel):

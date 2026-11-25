@@ -1,11 +1,14 @@
 import uvicorn
 import os
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles  # <--- ИМПОРТ 1
-from app.routers import auth, users, banking, services
+from app.errors import validation_error_handler
+from app.routers import auth, users, banking, services, payments, assistant
 
 app = FastAPI(title="Veridian Banking API")
+app.add_exception_handler(RequestValidationError, validation_error_handler)
 
 # ... (Middleware остается без изменений) ...
 app.add_middleware(
@@ -21,6 +24,8 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(banking.router)
 app.include_router(services.router)
+app.include_router(payments.router)
+app.include_router(assistant.router)
 
 # 2. Подключаем папку web (Flutter) как статику
 # html=True означает, что при запросе корня "/" будет отдаваться index.html

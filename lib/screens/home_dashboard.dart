@@ -9,6 +9,7 @@ import '../providers/localization_provider.dart';
 import '../services/account_service.dart';
 import '../services/card_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/payment_service.dart';
 import '../services/localization_service.dart';
 import '../services/transaction_service.dart';
 import '../services/user_service.dart';
@@ -16,7 +17,9 @@ import '../widgets/balance_card.dart';
 import '../theme.dart';
 import '../widgets/bank_card_details.dart';
 import '../widgets/banking_panel.dart';
-import 'analytics_screen.dart';
+import '../widgets/new_badge.dart';
+import 'analytics_screen.dart' show analyticsColors;
+import 'assistant/assistant_screen.dart';
 import 'auth/demo_session.dart';
 import 'banking_operation_form.dart';
 import 'business_check_screen.dart';
@@ -127,7 +130,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
             tooltip: uiText('Уведомления'),
             onPressed: () =>
                 openBankingScreen<void>(context, const MessagesScreen()),
-            icon: const Icon(Icons.notifications_none_rounded),
+            icon: Badge(
+              isLabelVisible: context.watch<PaymentService>().unreadCount > 0,
+              label: Text('${context.watch<PaymentService>().unreadCount}'),
+              child: const Icon(Icons.notifications_none_rounded),
+            ),
           ),
           const SizedBox(width: 4),
         ],
@@ -317,9 +324,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
                       uiText('Доходы и расходы'),
                       Icons.donut_large_rounded,
                       BankingTone.blue,
-                      () => openBankingScreen<void>(
-                          context, AnalyticsScreen(hideBalance: !_showBalance)),
-                      chart: true)),
+                      () => _openFeature(const AssistantScreen(), demo),
+                      chart: true,
+                      isNew: true)),
               const SizedBox(width: 8),
               Expanded(
                   child: _bento(
@@ -336,6 +343,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(children: [
                 _chip('QR', Icons.qr_code_rounded, const QrScanPage(), demo),
+                NewBadge(
+                  inset: const EdgeInsets.only(right: 4),
+                  child: _chip(uiText('Аналитик'), Icons.insights_rounded,
+                      const AssistantScreen(), demo),
+                ),
                 _chip(uiText('Чат AI'), Icons.auto_awesome_rounded,
                     const SupportScreen(), demo),
                 _chip(uiText('Госуслуги'), Icons.account_balance_rounded,
@@ -570,8 +582,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 FilledButton(
                     onPressed: () {
                       final amount = value;
-                      if (amount != null && amount.isFinite && amount > 0)
+                      if (amount != null && amount.isFinite && amount > 0) {
                         Navigator.pop(dialog, amount);
+                      }
                     },
                     child: Text(uiText('Сохранить'))),
               ],
@@ -589,29 +602,28 @@ class _HomeDashboardState extends State<HomeDashboard> {
         const Color(0xFF006552),
         const Color(0xFF1A9B78),
         () => bankingNotice(context,
-            uiText('Оформление карт в USD появится после подключения выпуска.'))
+            uiText('Оформление карт в USD появится после подключения выпуска.')),
+        false
       ),
       (
         uiText('AI-ассистент Veridian'),
         Icons.auto_awesome_rounded,
         const Color(0xFF104C67),
         const Color(0xFF2B7E91),
-        () => _openFeature(const SupportScreen(), demo)
+        () => _openFeature(const SupportScreen(), demo),
+        false
       ),
       (
-        uiText('Перевод за рубеж'),
-        Icons.public_rounded,
+        uiText('Финансовый аналитик'),
+        Icons.insights_rounded,
         const Color(0xFF403474),
         const Color(0xFF7158AE),
-        () => openBankingScreen<void>(
-            context,
-            BankingOperationForm(
-                operation: BankingOperation.international,
-                title: 'Международные переводы'))
+        () => _openFeature(const AssistantScreen(), demo),
+        true
       ),
     ];
     return Row(spacing: 7, children: [
-      for (final (title, icon, start, end, tap) in entries)
+      for (final (title, icon, start, end, tap, isNew) in entries)
         Expanded(
           child: AspectRatio(
               aspectRatio: 1,
@@ -631,7 +643,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                       HapticFeedback.selectionClick();
                       tap();
                     },
-                    child: Stack(children: [
+                    child: _newIf(isNew, alignment: Alignment.bottomLeft, Stack(children: [
                       Positioned(
                           right: -8,
                           bottom: -12,
@@ -650,7 +662,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                                       fontSize: 12,
                                       height: 1.08,
                                       fontWeight: FontWeight.w800)))),
-                    ]),
+                    ])),
                   ),
                 ),
               )),
@@ -667,6 +679,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
     }
   }
 
+  Widget _newIf(bool isNew, Widget child,
+          {Alignment alignment = Alignment.topRight}) =>
+      isNew ? NewBadge(alignment: alignment, child: child) : child;
+
   Widget _chip(String label, IconData icon, Widget page, bool demo) => Padding(
         padding: const EdgeInsets.only(right: 7),
         child: ActionChip(
@@ -677,13 +693,15 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
   Widget _bento(String title, String subtitle, IconData icon, BankingTone tone,
           VoidCallback tap,
-          {bool chart = false}) =>
+          {bool chart = false, bool isNew = false}) =>
       BankingPanel(
           padding: 0,
           child: InkWell(
             onTap: tap,
             borderRadius: BorderRadius.circular(18),
-            child: Padding(
+            child: _newIf(
+                isNew,
+                Padding(
                 padding: const EdgeInsets.all(10),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -717,7 +735,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                                         )),
                                 ])
                               : const SizedBox.shrink()),
-                    ])),
+                    ]))),
           ));
 }
 

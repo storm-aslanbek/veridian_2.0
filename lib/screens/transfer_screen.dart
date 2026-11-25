@@ -7,11 +7,13 @@ import 'package:uuid/uuid.dart';
 import '../models/phone_formatter.dart';
 import '../models/transaction.dart';
 import '../services/account_service.dart';
+import '../services/payment_service.dart';
 import '../services/transaction_service.dart';
 import '../services/transfer_service.dart';
 import '../services/user_service.dart';
 import '../widgets/amount_input.dart';
 import '../widgets/banking_panel.dart';
+import '../widgets/payment_warning_dialog.dart';
 import 'support_screen.dart';
 import 'auth/demo_session.dart';
 import 'banking_operation_form.dart';
@@ -456,6 +458,7 @@ class _TransferFormState extends State<_TransferForm> {
     final userId = userService.currentUser?.id;
     if (userId == null) return;
     final accounts = context.read<AccountService>();
+    final messages = context.read<PaymentService>();
     final accountId = _selectedAccountId;
     final source = accounts.accounts
         .where((a) => a.id == accountId && a.userId == userId && a.isActive)
@@ -503,7 +506,19 @@ class _TransferFormState extends State<_TransferForm> {
       if (!mounted ||
           recipient == null ||
           input != _dataController.text.trim() ||
-          userService.currentUser?.id != userId) return;
+          userService.currentUser?.id != userId) {
+        return;
+      }
+      final amountText = _amountController.text;
+      final confirmed = await confirmPayment(context,
+          kind: 'transfer', amount: amount, accountId: source.id);
+      if (!mounted ||
+          !confirmed ||
+          input != _dataController.text.trim() ||
+          amountText != _amountController.text ||
+          userService.currentUser?.id != userId) {
+        return;
+      }
       final success = byPhone
           ? await service.performPhoneTransfer(
               sourceAccountId: source.id,
@@ -521,7 +536,8 @@ class _TransferFormState extends State<_TransferForm> {
       }
       if (userService.currentUser?.id != userId) return;
       final now = DateTime.now();
-      final refresh = accounts.loadAccounts(userId);
+      final refresh =
+          Future.wait([accounts.loadAccounts(userId), messages.loadPayments()]);
       final saved = await history.addTransaction(Transaction(
         id: const Uuid().v4(),
         userId: userId,
